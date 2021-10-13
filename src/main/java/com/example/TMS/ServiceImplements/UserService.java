@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -221,17 +222,23 @@ public class UserService implements UserServiceInterface {
 
     public UserDetails loadByUserName(String userName) throws UsernameNotFoundException {
         Optional<User> user = userRepo.findByUserName(userName);
-
+        List<Role> sabari = new LinkedList<>();
         if(user==null)
         {
             throw new UsernameNotFoundException("User Not Found");
         }
-        List<Role> sabari = new LinkedList<>();
+
+/*        user.get().getListOfRole().stream().forEachOrdered(role -> {
+            sabari.add(role);
+        });*/
+
+
         List<UserRole> userRole = userRoleRepo.findByUserOwnerId(user.get().getOwnerId());
         userRole.stream().forEachOrdered(userRole1 ->{
             Role role = userRole1.getRole();
             sabari.add(role);
         });
+
         return new org.springframework.security.core.userdetails.User(
                 user.get().getUserName(),
                 user.get().getPassword(),
@@ -246,6 +253,7 @@ public class UserService implements UserServiceInterface {
         });
         return authorities;
     }
+
 
 
 }
